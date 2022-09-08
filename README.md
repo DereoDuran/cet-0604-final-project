@@ -17,7 +17,9 @@ Nossa equipe foi contratada por um grupo de escolas norte-americano chamado **Te
 
 Para criar a base de dados fictícia, partimos da tabela fato **Aulas** (*lessons*) e construímos as seguintes dimensões associadas: **Datas** (*dates*),  **Escolas** (*schools*),  **Disciplinas** (*school_subjects*),  **Professores** (*teachers*),  **Tipos de aula** (*class_types*),  **Salas de aula** (*classrooms*) e **Turmas** (*classes*). 
 
-O script [`create_schema.sql`](create_schema.sql) contém os comandos de criação das tabelas e a seguir damos uma breve descrição do que cada coluna representa:
+O script [`2_1_create_schema.sql`](schools/scripts/2_1_create_schema.sql) contém os comandos de criação das tabelas e a seguir mostramos a representação da modelagem e damos uma breve descrição do que cada coluna representa:
+
+![database schema](schools/images/model.png)
 
 Tabela class_types
 - class_type_id (int): Chave primária
@@ -80,10 +82,18 @@ Tabela teachers
 - teacher_id (int): Chave primária
 - teacher_name (varchar (255)): Nome do professor
 
-Os detalhes de como os dados fictícios de cada tabela foram gerados podem ser encontrados no notebook [`populate_db.ipynb`](populate_db.ipynb). Tentamos ser realistas na geração dos dados (por exemplo, escolas do nível Elementary só possuem turmas Elementary, turmas da manhã só têm aulas das 8h até 12h, etc), mas como o foco do projeto é a otimização, optamos por manter algumas inconsistências (por exemplo, professores podem dar mais de uma aula mesmo tempo).
+Os detalhes de como os dados fictícios de cada tabela foram gerados podem ser encontrados no notebook [`2_2_populate_db.ipynb`](schools/notebooks/2_2_populate_db.ipynb). Tentamos ser realistas na geração dos dados (por exemplo, escolas do nível Elementary só possuem turmas Elementary, turmas da manhã só têm aulas das 8h até 12h, etc), mas como o foco do projeto é a otimização, optamos por manter algumas inconsistências (por exemplo, professores podem dar mais de uma aula mesmo tempo).
 
 Assumimos que esse é o estado no qual a nossa equipe recebeu a base de dados para executar o projeto.
 
 3.  Oportunidades de Otimização
 
-    3.1 Correção de tipos de colunas: Identificamos que algumas colunas estão definidas com o tipo ideal para o dado que estão armazenando. 
+    3.1 **Correção de tipos de colunas**: Identificamos que algumas colunas estão definidas com o tipo ideal para o dado que estão armazenando. Sendo assim, propusemos que inicialmente sejam feitas alterações para os tipos de certas colunas, sendo elas:
+
+    - 
+    - 
+    - 
+
+    3.2 **Arquivamento de dados**: Após conversar com a coordenação da escola, entendemos que, apesar do banco de dados armazenar informações de mais de 20 anos, apenas informações dos últimos 10 anos eram necessárias para geração dos relatórios que eles utilizavam no dia-a-dia. Sendo assim, propusemos que as informações relacionadas a aulas do período anterior a esse fossem arquivadas, e dessa forma todas as queries se beneficiariam dessa redução da base. No arquivo [`3_2_data_archive.sql`](schools/scripts/3_2_data_archive.sql), mostramos o script que foi executado para separar a informação de aulas antigas em uma tabela separada. 
+
+    3.3 **Criação de índices**: 
