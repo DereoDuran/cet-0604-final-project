@@ -7,10 +7,16 @@ import os
 import random
 from faker import Faker
 from faker_education import SchoolProvider
+import time
 
 fake = Faker('pt_BR')
 fake.add_provider(SchoolProvider)
 
+def time_fetch(cnx, query):
+    start = time.time()
+    result = cnx.fetch(query)
+    end = time.time()
+    return end - start, result
 class FakeData:
 
     def __init__(self, number_of_schools = 1):
@@ -179,10 +185,9 @@ class FakeData:
 class MysqlConnector:
     def __init__(self):
         self.connection = mysql.connector.connect(user=os.environ['MYSQL_USER'],
-                                    password=os.environ['MYSQL_PASSWORD'],
+                                    password='',
                                     host=os.environ['MYSQL_HOST'],
-                                    database=os.environ['MYSQL_DATABASE'],
-                                    auth_plugin='mysql_native_password')
+                                    database=os.environ['MYSQL_DATABASE'])
 
     def execute(self, query):
         cursor = self.connection.cursor()
