@@ -9,6 +9,11 @@
 
 <hr>
 
+Este trabalho tem como intuito a implementação de uma estrutura de dados tomando como referência o esquema/modelo fato dimensão, também conhecido na literatura como esquema estrela, sendo que após a implementação da estrutura de dados, será feito análise técnica sobre as particularidades da estrutura de dados, análise e justificativa sobre as escolhas de campos, e queries que refletem em otimizações (tipos de dados, escrita de consultas, índices etc.), assim como demonstrações dos respectivos resultados obtidos. A base de dados a ser implementada e analisada seguirá o contexto escolar, com foco no armazenamento de aulas, sendo que o sistema gerenciador de banco de dados escolhido para a respectiva implementação será o MySQL.
+O modelo fato dimensão ou esquema estrela, idealizado por Ralph Kimball, é composto no centro por uma tabela fato, rodeada por tabelas de dimensão. A tabela fato é uma tabela com uma quantidade enorme de linhas, e que representa os fatos relacionados a um contexto, que podem se repetir ou não. A tabela dimensão é a tabela que vai auxiliar a tabela fato com dados complementares ou explicativos, e que possui informações que não se repetem. O relacionamento entre ambas as tabelas se dá através de chaves estrangeiras, portanto a tabela fato armazena as chaves primárias das tabelas dimensões, estabelecendo assim um relacionamento com elas. Segue abaixo ilustração de uma tabela fato com suas respectivas dimensões:
+ 
+ ![image](https://user-images.githubusercontent.com/72812254/189532368-a6bc8215-d8b9-4f70-b7a3-b6b746a59fd6.png)
+
 1.  Contexto
 
 Nossa equipe foi contratada por um grupo de escolas norte-americano chamado **Tetrahedron** para um projeto de consultoria. A principais queixas trazidas por eles estão relacionadas a problemas de funcionamento de um programa de uso interno pela coordenação, cuja principal função é realizar o controle de aulas de todas as escolas de grupo. O Tetrahedron Group já existe há mais de 20 anos e tem um total de 100 escolas espalhadas por vários estados norte-americanos. Com o tempo, a coordenação vem notando uma degradação visível no funcionamento desse programa de controle e precisa de nossa ajuda para melhor a experiência dos seus funcionários, que hoje perdem muito tempo para executar algumas tarefas. Como esse programa utiliza um banco de dados local, nossa equipe foi chamada para encontrar oportunidades de otimização e executar melhorias com foco em performance e redução de custos.
@@ -141,6 +146,37 @@ Assumimos que esse é o estado no qual a nossa equipe recebeu a base de dados pa
         - class_end UNSIGNED TINYINT
         - attendance UNSIGNED SMALLINT
 
+    O tipo INT UNSIGNED foi escolhido como tipo de dados para os campos/colunas que são chave primária, sendo que nesse caso não haverá necessidade de uso de valores com sinal (negativos), além que o tipo INT UNSIGNED comporta com folga a demanda de registros a serem armazenados em um ambiente de produção escolar.
+    
+    O tipo TYNINT UNSIGNED, foi preferido para colunas que vão armazenar valores positivos pequenos, pois não haverá necessidade de armazenar números com sinal, além de que os valores armazenados ficaram na casa de poucas dezenas, ou no máximo em um caso excepcional na casa de centenas.
+
+    O tipo SMALLINT UNSIGNED, foi preferido para colunas que vão armazenar valores positivos medianos, inferiores a 65535, pois os valores armazenados ficaram na casa de poucas dezenas, ou no máximo em um caso excepcional na casa de centenas.
+
+    Para a maioria dos campos que armazenam sequencias de caracteres (strings), com exceção dos campos email, tabela teachers, e school_subject, tabela school_subjects, foi escolhido o tipo CHAR(x) como tipo de dados, sendo especificado entre parâmetros a quantidade de caracteres necessária, sendo que optamos pelo tipo CHAR ao invés do VARCHAR.
+
+    O tipo VARCHAR é usado para guardar strings de tamanho variável e usa alocação dinâmica de memória. O CHAR tem tamanho fixo e tem alocação estática de memória. Normalmente, se o conteúdo é de tamanho fixo (ou muito semelhante) então o uso de CHAR trás melhor performance. Quando o tamanho difere muito então é melhor usar o VARCHAR.
+
+    Normalmente o VARCHAR usa um ou dois bytes de memória adicionais (para tamanho ou para marcar o final dos dados) em relação ao tamanho total dos dados.
+    Por exemplo, para armazenar a palavra "Oracle":
+
+    CHAR (6) = 6 bytes, sem overhead
+    VARCHAR (10) = 8 bytes usados (2 de overhead)
+    CHAR (10) = 10 bytes usados (4 bytes de overhead)
+
+    Em termos de performance temos duas coisas a considerar:
+
+    Com o CHAR, uma vez que o tamanho do campo é definido, o tamanho obtido no final será exatamente aquele que foi definido, sendo que o processamento das strings é mais simples uma vez que o tamanho dos dados é completamente previsível.
+
+    Com o VARCHAR, o processamento é um pouco diferente. Por exemplo, quando é definido uma coluna com o tipo VARCHAR (10) na realidade o SGBD aloca dinamicamente até 11 caracteres (10 + 1 para guardar o tamanho dos dados). O processamento das strings deverá sempre ter que contemplar alguma forma de validação do tamanho dos dados.
+
+    Esta diferença torna-se mais aparente quando pensamos em dois aspectos: 
+    1) Armazenamento de milhões ou bilhões de registos; 
+    2) Indexar colunas CHAR ou VARCHAR.
+    1. O VARCHAR tem vantagem porque pode em teoria produzir registros mais compactos (de menor tamanho) e consequentemente, menos espaço em disco ocupado.
+    2. Uma vez que o CHAR requer menor manipulação dos dados devido ao tamanho fixo, pode ser normalmente até 20% mais rápido a efetuar um lookup no index em comparação com o mesmo campo em VARCHAR. (Isto é válido para MySQL de acordo com o livro MySQL Database Design and Tuning)
+    3. Uma outra coisa a se levar em consideração, tem a ver com a fragmentação. Por vezes uma tabela, com ID PK VARCHAR pode ficar fragmentada devido divisão de páginas nas colunas VARCHAR. Por vezes definir a coluna como CHAR pode resolver esse problema.
+
+    
     O script usado para alteração das colunas pode ser visto em [`3_1_alter_columns.sql`](schools/scripts/3_1_alter_columns.sql)
 
     3.2 **Arquivamento de dados**: Após conversar com a coordenação da escola, entendemos que, apesar do banco de dados armazenar informações de mais de 20 anos, apenas informações dos últimos 10 anos eram necessárias para geração dos relatórios que eles utilizavam no dia-a-dia. Sendo assim, propusemos que as informações relacionadas a aulas do período anterior a esse fossem arquivadas, e dessa forma todas as queries se beneficiariam dessa redução da base. No notebook [`3_2_data_archive.ipynb`](schools/notebooks/3_2_data_archive.ipynb), mostramos o script que foi executado para separar a informação de aulas antigas em uma tabela separada, que posteriormente será exportada e arquivada para diminuir os custos com o banco de dados. Ao final, vemos que conseguimos reduzir a tabela `lessons` para 12.254.240 linhas, exportando um total de 13.370.688 linhas para a tabela arquivada.
