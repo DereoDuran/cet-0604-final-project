@@ -182,5 +182,33 @@ Assumimos que esse é o estado no qual a nossa equipe recebeu a base de dados pa
     3.2 **Arquivamento de dados**: Após conversar com a coordenação da escola, entendemos que, apesar do banco de dados armazenar informações de mais de 20 anos, apenas informações dos últimos 10 anos eram necessárias para geração dos relatórios que eles utilizavam no dia-a-dia. Sendo assim, propusemos que as informações relacionadas a aulas do período anterior a esse fossem arquivadas, e dessa forma todas as queries se beneficiariam dessa redução da base. No notebook [`3_2_data_archive.ipynb`](schools/notebooks/3_2_data_archive.ipynb), mostramos o script que foi executado para separar a informação de aulas antigas em uma tabela separada, que posteriormente será exportada e arquivada para diminuir os custos com o banco de dados. Ao final, vemos que conseguimos reduzir a tabela `lessons` para 12.254.240 linhas, exportando um total de 13.370.688 linhas para a tabela arquivada.
 
     3.3 **Cache**: Uma outra queixa trazida pela coordenação está relacionada ao tempo que o programa leva para iniciar. Segundo eles, toda vez que fechamos e abrimos o programa, eles perdem alguns minutos esperando a inicialização. Nossa equipe investigou o código do programa e viu que, ao ser iniciado, ele executa uma query que mostra a quantidade média de alunos presente de todos os professores por ano (vista no arquivo [`3_3_teachers_performance.sql`](schools/scripts/3_3_teachers_performance.sql). No notebook [`3_3_cache.ipynb`](schools/notebooks/3_3_cache.ipynb) executamos a query e vimos que ela leva cerca de 2 minutos, e provavelmente é o que está atrasando a inicialização do programa. Nossa equipe analisou a query e entendeu que, como as aulas são salvas apenas no fim do dia, só há necessidade de executá-la uma vez por dia. Todas as outras execuções ao longo do dia vão retornar o mesmo resultado. Por conta disso, implementamos um sistema de cache no banco de dados, especificamente para essa query, e garantimos que apenas a primeira execução da query demoraria. Uma outra alternativa seria criar um script de execução diária da query, mas o grupo Tetrahedron preferiu a primeira solução pois essa segunda exigiria horas gastas com nossa consultoria para implementação.
+    
+    Também fizemos uma avaliação de melhoria da query original que se mostrou promissora. Para a consulta de performance de processor,  foi avaliado o desempenho de duas consultas, a primeira, uma consulta direta, sem qualquer otimização.
+    
+     ` SELECT l.teacher_id,teacher_name, year, AVG(attendance) AS avg_attendance
+         FROM lessons l
+         JOIN dates  ON dates.date_id = l.date_id
+         join teachers on l.teacher_id = teachers.teacher_id
+     GROUP BY l.teacher_id, dates.year, teacher_name
+         ORDER BY avg_attendance DESC; `
+
+     A segunda, foi construida usando uma expressão de tabela comum (CTE);
+
+      ` WITH attendances AS (
+           SELECT teacher_id, year, AVG(attendance) AS avg_attendance
+           FROM lessons
+           JOIN dates ON dates.date_id = lessons.date_id
+           GROUP BY teacher_id, year
+           ORDER BY avg_attendance DESC
+       )
+       SELECT attendances.teacher_id, teacher_name, attendances.year, attendances.avg_attendance FROM attendances
+       join teachers on attendances.teacher_id = teachers.teacher_id; `
+
+      A consulta de Performace de Professores, utilizando uma expressão de tabela comum apresentou o desempenho 4 vezes mais rápido que utilizando a consulta diretamente, como mostrado na consulta abaixo:
+
+      ![image](https://user-images.githubusercontent.com/72812254/189553112-18d4ba82-fd34-4432-85aa-68626b96cccb.png)
+
+      Os índices utilizados nessa consulta são os índices de chaves (primárias e estrangeiras) logo não foi necessária a criação ou exclusão dos mesmos.
+
 
     3.4 **Índices**: Uma outra análise que nossa equipe fez foi com relação aos índices presentes na tabela de fatos. No notebook [`3_4_create_index.ipynb`](schools/notebooks/3_4_create_index.ipynb), vemos que a tabela `lessons` possui indíces para todas as colunas que referenciam ids de tabelas de dimensões. Isso acontece porque o [MySQL cria automaticamente índices para colunas com chaves estrangeiras](https://dev.mysql.com/doc/refman/8.0/en/constraint-foreign-key.html#:~:text=MySQL%20requires%20that%20foreign%20key,column%2C%20an%20index%20is%20created.&text=Information%20about%20foreign%20keys%20on,tables%2C%20in%20the%20INFORMATION_SCHEMA%20database.). A única coluna que não possui um índice associado é a de `attendance`, porém não encontramos nenhuma query onde a criação do indíce melhoraria a sua performance. Isso aconteceria, por exemplo, se houvessem queries onde a coluna estivesse sendo usada numa cláusula `WHERE`, porém não foi o caso.
