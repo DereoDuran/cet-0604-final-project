@@ -20,6 +20,9 @@ Nossa equipe foi contratada por um grupo de escolas norte-americano chamado **Te
 
 2.  Criação da Base de Dados
 
+[Link para download da base de dados fictícia](https://drive.google.com/drive/folders/1zKqD3gytX3L3PK4yJTSkAVFXYs93zYui). 
+Aproximadamente 25 milhões de linhas, com tamanho original 1gb e tamanho comprimido 250mb.
+
 Para criar a base de dados fictícia, partimos da tabela fato **Aulas** (*lessons*) e construímos as seguintes dimensões associadas: **Datas** (*dates*),  **Escolas** (*schools*),  **Disciplinas** (*school_subjects*),  **Professores** (*teachers*),  **Tipos de aula** (*class_types*),  **Salas de aula** (*classrooms*) e **Turmas** (*classes*). 
 
 O script [`2_1_create_schema.sql`](schools/scripts/2_1_create_schema.sql) contém os comandos de criação das tabelas e a seguir mostramos a representação da modelagem e damos uma breve descrição do que cada coluna representa:
