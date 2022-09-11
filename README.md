@@ -27,65 +27,65 @@ O script [`2_1_create_schema.sql`](schools/scripts/2_1_create_schema.sql) conté
 ![database schema](schools/images/model.png)
 
     Tabela class_types
-    - class_type_id (int): Chave primária
+    - class_type_id (int): Chave primária. Exemplo de valores: {1, 2, 3, 4, ...}
     - type (char (20)): Tipo de aula (ONLINE, IN PERSON)
 
     Tabela classes
-    - class_code (char (6)): Código no formato abc123 usado para identificação da turma
-    - class_id (int): Chave primária 
+    - class_code (char (6)): Código no formato abc123, xyz345 usado para identificação da turma
+    - class_id (int): Chave primária. Exemplo de valores: {1, 2, 3, 4, ...}
     - class_level (char (20)): Nível da aula (Elementary, Middle, High)
     - class_period (char (20)): Horário da aula (Morning, Afternoon, Evening)
-    - students (int): Número de alunos
+    - students (int): Número de alunos. Exemplo de valores: {11, 23, 30, 45, ...}
 
     Tabela classrooms
-    - classroom_code (char (6)): Código no formato abc123 usado para identificação da sala
-    - classroom_id (int): Chave primária
+    - classroom_code (char (6)): Código no formato abc123, xyz345 usado para identificação da sala
+    - classroom_id (int): Chave primária. Exemplo de valores: {1, 2, 3, 4, ...}
 
     Tabela dates
-    - date (date): Data
-    - date_id (int): Chave primária
-    - day (int): Dia
-    - day_of_year (int): Ordem do dia no ano
-    - is_holiday (tinyint): Dia é feriado
-    - is_weekend (tinyint): Dia é fim-de-semana
+    - date (date): Data. Exemplo de valores: {‘2010-06-01’, ‘2020-05-27’}
+    - date_id (int): Chave primária. Exemplo de valores: {1, 2, 3, 4, ...}
+    - day (int): Dia (1-31)
+    - day_of_year (int): Ordem do dia no ano (1-366)
+    - is_holiday (tinyint): Dia é feriado (0, 1)
+    - is_weekend (tinyint): Dia é fim-de-semana (0, 1)
     - month (int): Ordem do mês no ano (1-12)
     - weekday (int): Ordem nos dias da semana (0-6)
-    - year (int): Ano
+    - year (int): Ano. Exemplo de valores: {2010, 2020}
 
     Tabela lessons
-    - attendance (int): Alunos presentes na aula
-    - class_end (int): Hora final da aula
-    - class_id (int): Chave estrangeira da turma
-    - class_start (int): Hora de início da aula
-    - class_type_id (int): Chave estrangeira do tipo de aula
-    - classroom_id (int): Chave estrangeira da sala de aula
-    - date_id (int): Chave estrangeira da data da aula
-    - lesson_id (int): Chave primária
-    - school_id (int): Chave estrangeira da escola
-    - school_subject_id (int): Chave estrangeira da disciplina
-    - teacher_id (int): Chave estrangeira do professor
+    - attendance (int): Alunos presentes na aula. Exemplo de valores: {22, 31, 43, ...}
+    - class_end (int): Hora final da aula. Exemplo de valores: {9, 10, 11, ...}
+    - class_id (int): Chave estrangeira da turma. Exemplo de valores: {1, 2, 3, 4, ...}
+    - class_start (int): Hora de início da aula. Exemplo de valores: {8, 9, 10, ...}
+    - class_type_id (int): Chave estrangeira do tipo de aula. Exemplo de valores: {1, 2, 3, 4, ...}
+    - classroom_id (int): Chave estrangeira da sala de aula. Exemplo de valores: {1, 2, 3, 4, ...}
+    - date_id (int): Chave estrangeira da data da aula. Exemplo de valores: {1, 2, 3, 4, ...}
+    - lesson_id (int): Chave primária. Exemplo de valores: {1, 2, 3, 4, ...}
+    - school_id (int): Chave estrangeira da escola. Exemplo de valores: {1, 2, 3, 4, ...}
+    - school_subject_id (int): Chave estrangeira da disciplina. Exemplo de valores: {1, 2, 3, 4, ...}
+    - teacher_id (int): Chave estrangeira do professor. Exemplo de valores: {1, 2, 3, 4, ...}
 
     Tabela school_subjects
-    - code (char (3)): Abreviação (Ex.: SCI, para Science)
-    - school_subject (varchar (255)): Nome da disciplina
-    - school_subject_id (int): Chave primária
+    - code (char (3)): Abreviação Exemplo de valores: SCI, para Science
+    - school_subject (varchar (255)): Nome da disciplina Exemplo de valores: Math, Science, History
+    - school_subject_id (int): Chave primária. Exemplo de valores: {11, 23, 30, 45, ...}
 
     Tabela schools
-    - max_students (int): Capacidade máxima de estudantes
-    - school_district (varchar (255)): Distrito da escola
-    - school_id (int): Chave primária
+    - max_students (int): Capacidade máxima de estudantes. Exemplo de valores: {500, 1000}
+    - school_district (varchar (255)): Distrito da escola. Exemplo de valores: {Pittsburgh, Los Angeles}
+    - school_id (int): Chave primária. Exemplo de valores: {11, 23, 30, 45, ...}
     - school_level (varchar (255)): Grau da escola (Elementary, Middle, High)
-    - school_name (varchar (255)): Nome da escola
-    - school_state (varchar (255)): Estado da escola
+    - school_name (varchar (255)): Nome da escola. Exemplo de valores: {Altamont, Valencia}
+    - school_state (varchar (255)): Estado da escola. Exemplo de valores: {CA, NC}
 
     Tabela teachers
-    - birthdate (date): Data de nascimento
-    - email (varchar (255)): E-mail
-    - end_year (int): Ano que parou de lecionar
-    - sex (char (1)): Sexo
-    - start_year (int): Ano que começou a lecionar
-    - teacher_id (int): Chave primária
-    - teacher_name (varchar (255)): Nome do professor
+    - birthdate (date): Data de nascimento. Exemplo de valores: {‘1987-06-01’, ‘1990-05-27’}
+    - email (varchar (255)): E-mail. Exemplo de valores: {mbarros@uol.com.br, taraujo@hotmail.com}
+    - end_year (int): Ano que parou de lecionar. Exemplo de valores: {2019, 2021}
+    - sex (char (1)): Sexo (M, F)
+    - start_year (int): Ano que começou a lecionar. Exemplo de valores: {2015, 2020}
+    - teacher_id (int): Chave primária. Exemplo de valores: {11, 23, 30, 45, ...}
+    - teacher_name (varchar (255)): Nome do professor. Exemplo de valores: {Bruno Porto, Maysa Moura}
 
 Os detalhes de como os dados fictícios de cada tabela foram gerados podem ser encontrados no notebook [`2_2_populate_db.ipynb`](schools/notebooks/2_2_populate_db.ipynb). Tentamos ser realistas na geração dos dados (por exemplo, escolas do nível Elementary só possuem turmas Elementary, turmas da manhã só têm aulas das 8h até 12h, etc), mas como o foco do projeto é a otimização, optamos por manter algumas inconsistências (por exemplo, professores podem dar mais de uma aula mesmo tempo).
 
@@ -170,11 +170,11 @@ Assumimos que esse é o estado no qual a nossa equipe recebeu a base de dados pa
     Com o VARCHAR, o processamento é um pouco diferente. Por exemplo, quando é definido uma coluna com o tipo VARCHAR (10) na realidade o SGBD aloca dinamicamente até 11 caracteres (10 + 1 para guardar o tamanho dos dados). O processamento das strings deverá sempre ter que contemplar alguma forma de validação do tamanho dos dados.
 
     Esta diferença torna-se mais aparente quando pensamos em dois aspectos: 
-    1) Armazenamento de milhões ou bilhões de registos; 
-    2) Indexar colunas CHAR ou VARCHAR.
-    1. O VARCHAR tem vantagem porque pode em teoria produzir registros mais compactos (de menor tamanho) e consequentemente, menos espaço em disco ocupado.
-    2. Uma vez que o CHAR requer menor manipulação dos dados devido ao tamanho fixo, pode ser normalmente até 20% mais rápido a efetuar um lookup no index em comparação com o mesmo campo em VARCHAR. (Isto é válido para MySQL de acordo com o livro MySQL Database Design and Tuning)
-    3. Uma outra coisa a se levar em consideração, tem a ver com a fragmentação. Por vezes uma tabela, com ID PK VARCHAR pode ficar fragmentada devido divisão de páginas nas colunas VARCHAR. Por vezes definir a coluna como CHAR pode resolver esse problema.
+    - Armazenamento de milhões ou bilhões de registos; 
+    - Indexar colunas CHAR ou VARCHAR.
+      1. O VARCHAR tem vantagem porque pode em teoria produzir registros mais compactos (de menor tamanho) e consequentemente, menos espaço em disco ocupado.
+      2. Uma vez que o CHAR requer menor manipulação dos dados devido ao tamanho fixo, pode ser normalmente até 20% mais rápido a efetuar um lookup no index em comparação com o mesmo campo em VARCHAR. (Isto é válido para MySQL de acordo com o livro MySQL Database Design and Tuning)
+      3. Uma outra coisa a se levar em consideração, tem a ver com a fragmentação. Por vezes uma tabela, com ID PK VARCHAR pode ficar fragmentada devido divisão de páginas nas colunas VARCHAR. Por vezes definir a coluna como CHAR pode resolver esse problema.
 
     
     O script usado para alteração das colunas pode ser visto em [`3_1_alter_columns.sql`](schools/scripts/3_1_alter_columns.sql)
